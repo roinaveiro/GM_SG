@@ -22,10 +22,10 @@ if __name__ == '__main__':
     X = pca.fit_transform(X)
     ##
     start = 0.01
-    stop = 2.0
-    grid_size = 20
+    stop = 1.0
+    grid_size = 10
     MEAN_GRID = np.logspace(np.log10(start), np.log10(stop), num=grid_size)
-    N_EXP = 50 # For hold-out validation
+    N_EXP = 10 # For hold-out validation
     ##
     rmse_raw_clean = np.zeros(N_EXP)
     rmse_nash_clean = np.zeros(N_EXP)
@@ -79,5 +79,5 @@ if __name__ == '__main__':
         df = pd.DataFrame({"EXP":range(N_EXP), "raw_cleandata":rmse_raw_clean,
          "raw_atdata":rmse_raw_at, "nash_rawdata":rmse_nash_clean, "nash_atdata":rmse_nash_at})
 
-        name = "results/exp3/"+"mean"+str(MEAN)+".csv"
+        name = "results/exp1/"+"mean"+str(MEAN)+".csv"
         df.to_csv(name, index=False)
