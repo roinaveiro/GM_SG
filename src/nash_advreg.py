@@ -95,6 +95,56 @@ def attacker_cost_flatten(X, X_clean, w, params):
     diff = X_clean - X
     return  torch.sum( c_d*(X @ weights.t() + bias - z)**2 )  +  torch.sum(diff**2)
 
+
+def compute_backwar_derivative(X_clean, y, w, params):
+    ##
+    S = params["inner_epochs"]
+    ilr = params["inner_lr"]
+    ##
+    gm = lambda w, X: attacker_cost_flatten(X, X_clean, w, params)
+    fm = lambda w, X: learner_cost_flatten(X, y, w, params)
+    X = torch.randn(X_clean.shape[0]*X_clean.shape[1], requires_grad=True)
+    ##
+    Xt = torch.zeros(int(S), X.shape[0])
+    ## Inner loop
+    for j in range(S):
+        grad_X = torch.autograd.grad( gm(w,X) , X, create_graph=True )[0]
+        new_X = X - ilr*grad_X
+        X = Variable(new_X, requires_grad=True)
+        Xt[j] = X ## Store for later usage
+    ########
+    alpha = -torch.autograd.grad( fm(w,X), X, retain_graph=True )[0]
+    gr = torch.zeros_like(w)
+    ########
+    for j in range(S-1,-1,-1):
+        X_tmp = Variable(Xt[j], requires_grad=True)
+        grad_X, = torch.autograd.grad( gm(w, X_tmp), X_tmp, create_graph=True )
+        loss = X_tmp - ilr*grad_X
+        loss = loss@alpha ## To compute Hessian Vector Product
+        aux1 = torch.autograd.grad(loss, w, retain_graph=True)[0]
+        aux2 = torch.autograd.grad(loss, X_tmp)[0]
+        gr -= aux1
+        alpha = aux2
+
+    grad_w = torch.autograd.grad( fm(w, X), w )[0]
+    ##
+    return grad_w + gr
+
+def train_nash_rr_test(X_clean, y, params, verbose = False):
+    lr = params["outer_lr"]
+    T = params["outer_epochs"]
+    w = torch.randn(1, X_clean.shape[1] + 1, requires_grad=True)
+    X = torch.randn(X_clean.shape[0]*X_clean.shape[1], requires_grad=True)
+    fm = lambda w, X: learner_cost_flatten(X, y, w, params)
+
+    for i in range(T):
+        grad = compute_backwar_derivative(X_clean, y, w, params)
+        w = w - lr*grad
+        if verbose:
+            if i%10 == 0:
+                print( 'epoch {}, loss {}'.format(i,fm(w,X)) )
+    return w
+
 def train_nash_rr(X_clean, y, params, verbose = False):
     lr = params["outer_lr"]
     ilr = params["inner_lr"]
@@ -137,6 +187,7 @@ def train_nash_rr(X_clean, y, params, verbose = False):
             if i%10 == 0:
                 print( 'epoch {}, loss {}'.format(i,fm(w,X)) )
     return w
+
 
 
 
