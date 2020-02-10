@@ -23,9 +23,12 @@ if __name__ == '__main__':
     start = 0.01
     stop = 1.0
     grid_size = 10
-    MEAN_GRID = np.logspace(np.log10(start), np.log10(stop), num=grid_size)
+    #MEAN_GRID = np.logspace(np.log10(start), np.log10(stop), num=grid_size)
+    MEAN_GRID = [0.8, 0.9, 1.0]
+    #MEAN = 0.5
     VAR = 0.5
     #VAR_GRID = np.logspace(np.log10(start), np.log10(stop), num=grid_size)
+    #VAR_GRID = [0.7, 0.8, 0.9, 1.0]
     ##
     N_EXP = 10 # For hold-out validation
     ##
@@ -37,7 +40,7 @@ if __name__ == '__main__':
     rmse_bayes_at = np.zeros(N_EXP)
     ##
     for MEAN in MEAN_GRID:
-        #for VAR in VAR_GRID:
+    #for VAR in VAR_GRID:
         for i in range(N_EXP):
             status = "MEAN: " + str(MEAN) + " VAR: " + str(VAR) + " EXP: " + str(i)
             print(status)
@@ -52,7 +55,7 @@ if __name__ == '__main__':
                 "z_train"      : torch.zeros([len(y_train),1]),
                 "c_d_test"     : torch.ones([len(y_test), 1]) * MEAN,
                 "z_test"       : torch.zeros([len(y_test),1]),
-                "outer_lr"     : 5*10e-7,
+                "outer_lr"     : 10e-6,
                 "inner_lr"     : 10e-4,
                 "outer_epochs" : 350,
                 "inner_epochs" : 200,
@@ -103,5 +106,5 @@ if __name__ == '__main__':
                                "nash_rawdata":rmse_nash_clean, "nash_atdata":rmse_nash_at, "bayes_rawdata":rmse_bayes_clean,
                                "bayes_atdata":rmse_bayes_at})
 
-            name = "results/exp2/"+"mean"+str(MEAN)+"var"+str(VAR)+".csv"
+            name = "results/exp4/"+"mean"+str(MEAN)+"var"+str(VAR)+".csv"
             df.to_csv(name, index=False)
