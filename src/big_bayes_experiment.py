@@ -24,11 +24,11 @@ if __name__ == '__main__':
     stop = 1.0
     grid_size = 10
     #MEAN_GRID = np.logspace(np.log10(start), np.log10(stop), num=grid_size)
-    MEAN_GRID = [0.8, 0.9, 1.0]
-    #MEAN = 0.5
-    VAR = 0.5
+    #MEAN_GRID = [0.8, 0.9, 1.0]
+    MEAN = 0.5
+    #VAR = 0.5
     #VAR_GRID = np.logspace(np.log10(start), np.log10(stop), num=grid_size)
-    #VAR_GRID = [0.7, 0.8, 0.9, 1.0]
+    VAR_GRID = [0.01]
     ##
     N_EXP = 10 # For hold-out validation
     ##
@@ -39,8 +39,8 @@ if __name__ == '__main__':
     rmse_nash_at = np.zeros(N_EXP)
     rmse_bayes_at = np.zeros(N_EXP)
     ##
-    for MEAN in MEAN_GRID:
-    #for VAR in VAR_GRID:
+    #for MEAN in MEAN_GRID:
+    for VAR in VAR_GRID:
         for i in range(N_EXP):
             status = "MEAN: " + str(MEAN) + " VAR: " + str(VAR) + " EXP: " + str(i)
             print(status)
@@ -106,5 +106,5 @@ if __name__ == '__main__':
                                "nash_rawdata":rmse_nash_clean, "nash_atdata":rmse_nash_at, "bayes_rawdata":rmse_bayes_clean,
                                "bayes_atdata":rmse_bayes_at})
 
-            name = "results/exp4/"+"mean"+str(MEAN)+"var"+str(VAR)+".csv"
+            name = "results/"+"mean"+str(MEAN)+"var"+str(VAR)+".csv"
             df.to_csv(name, index=False)
